@@ -4,10 +4,13 @@ import socket
 import threading
 import time
 import re
+import csv
+import queue
 from dotenv import load_dotenv
 
+
 class TwitchChatReader:
-    def __init__(self, channel):
+    def __init__(self, channel, log_file="chat_log.csv"):
         load_dotenv()
         self.channel = channel.lower().strip('#')
         self.nickname = "justinfan12345"  # Anonymous user
@@ -16,6 +19,36 @@ class TwitchChatReader:
         self.socket = None
         self.is_connected = False
         self.listen_thread = None
+        self.log_file = log_file
+        self.csv_header = ['timestamp', 'username', 'message', 'channel', 'tags', 'raw']
+        self.log_queue = queue.Queue()
+        self.logging_thread = threading.Thread(target=self._log_worker, daemon=True)
+        self._setup_csv()
+        self.logging_thread.start()
+
+    def _setup_csv(self):
+        """Set up the CSV file with header if it doesn't exist"""
+        if not os.path.exists(self.log_file):
+            try:
+                with open(self.log_file, 'w', newline='', encoding='utf-8') as csvfile:
+                    csv_writer = csv.writer(csvfile)
+                    csv_writer.writerow(self.csv_header)
+            except Exception as e:
+                print(f"Error setting up CSV file: {e}")
+
+    def _log_worker(self):
+        """Background thread for writing log entries asynchronously"""
+        while True:
+            data = self.log_queue.get()
+            if data is None:
+                break  # Sentinel value to stop the thread
+            try:
+                with open(self.log_file, 'a', newline='', encoding='utf-8') as csvfile:
+                    csv_writer = csv.writer(csvfile)
+                    csv_writer.writerow(data)
+            except Exception as e:
+                print(f"Error writing to CSV file: {e}")
+            self.log_queue.task_done()
 
     def connect(self):
         """Connect to Twitch IRC server."""
@@ -48,6 +81,9 @@ class TwitchChatReader:
                 self.socket.close()
             except:
                 pass
+        # Stop the logging thread
+        self.log_queue.put(None)
+        self.logging_thread.join()
         print("Disconnected from Twitch chat")
 
     def _parse_message(self, response):
@@ -150,21 +186,14 @@ class TwitchChatReader:
     def run(self):
         """Main function to run the chat reader"""
         try:
-            # Connect to a channel (replace with desired channel)
             if self.connect():
                 print(f"Successfully connected to #{self.channel}")
                 print("Starting to listen for messages... (Press Ctrl+C to stop)")
-
-                # Start listening with custom callback
                 self.start_listening()
-
-                # Keep the main thread alive
                 while self.is_connected:
                     time.sleep(1)
-
             else:
                 print("Failed to connect to Twitch chat")
-
         except KeyboardInterrupt:
             print("\nStopping chat listener...")
         except Exception as e:
@@ -177,25 +206,23 @@ class TwitchChatReader:
         """Custom message handler"""
         username = message_data['username']
         message = message_data['message']
-        timestamp = time.strftime('%H:%M:%S', time.localtime(message_data['timestamp']))
+        timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(message_data['timestamp']))
 
+        log_data = [timestamp, username, message, self.channel, str(message_data['tags']), message_data['raw']]
         print(f"[{timestamp}] {username}: {message}")
+        self.log_queue.put(log_data)
 
         # Add custom logic here
         if "hello" in message.lower():
             print(f"  -> {username} said hello!")
 
-        # You can also access tags for more info
         if message_data['tags']:
             subscriber = message_data['tags'].get('subscriber', '0') == '1'
             if subscriber:
                 print(f"  -> {username} is a subscriber!")
 
     def __str__(self):
-        """String representation"""
         return f"TwitchChatReader(channel=#{self.channel}, connected={self.is_connected})"
 
     def __repr__(self):
-        """Developer representation"""
         return f"TwitchChatReader(channel='{self.channel}', connected={self.is_connected})"
-
