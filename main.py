@@ -34,6 +34,15 @@ def main():
 
 
 
+def main():
+    # Set the channel names directly in the script
+    channel_names = ["therealtianamusarra", "shannonmais"]  # Replace with your desired channel names
+
+    # Initialize the chat reader
+    chat = TwitchChatReader(channel_names)
+
+    # Run the chat reader
+    chat.run()
 
 if __name__ == "__main__":
     main()

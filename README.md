@@ -15,6 +15,7 @@ Next, simply type in the name of the stream you wish to watch and log the chat o
 # Current Features
 * Monitor the chat and events for any stream
 * Log chat history, currently to CSV file
+* Log multiple Twitch channels simultaneously
 
 
 
@@ -22,7 +23,7 @@ Next, simply type in the name of the stream you wish to watch and log the chat o
 # Features Roadmap
 * Optional High Vector Database support (ChromaDB for prototyping)
 * PostgreSQL for chat history logging
-* Support for multiple channels at once
+* Docker container
 
 
 

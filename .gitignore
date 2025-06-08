@@ -161,3 +161,4 @@ cython_debug/
 
 # Everything else
 chat_log.csv
+chat_logs/
