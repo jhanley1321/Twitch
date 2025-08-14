@@ -76,4 +76,3 @@ class TwitchVODChatLogger:
         
         else:
             raise ValueError("Invalid save_to value. Must be 'csv' or 'json'.")
-
