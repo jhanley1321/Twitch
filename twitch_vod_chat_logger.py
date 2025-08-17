@@ -12,9 +12,16 @@ class TwitchVODChatLogger:
         self.chat_data = []
         self.vods = []  # To store fetched VOD metadata for a streamer
 
+
+
     def fetch_chat(self, vod_url_or_id: str):
         """Fetch chat messages from the specified VOD."""
-        self.vod_url_or_id = vod_url_or_id
+        # If user passed a numeric ID, turn it into a Twitch VOD URL
+        s = str(vod_url_or_id).strip()
+        if s.isdigit():
+            s = f"https://www.twitch.tv/videos/{s}"
+
+        self.vod_url_or_id = s
         chat = ChatDownloader().get_chat(self.vod_url_or_id)
         self.chat_data = [self._extract_message(msg) for msg in chat]
         return self.chat_data

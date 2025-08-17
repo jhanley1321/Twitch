@@ -20,8 +20,8 @@ def main():
         client.disconnect()
 
 
-    # TwitchVod = TwitchVODChatLogger(output_dir="chat_logs")
-    # TwitchVod.run_download_vod(vod_url_or_id = str(vod_ids[0]) )
+    TwitchVod = TwitchVODChatLogger(output_dir="chat_logs")
+    TwitchVod.run_download_vod(vod_url_or_id = str(vod_ids[-1]) )
 
     
 
