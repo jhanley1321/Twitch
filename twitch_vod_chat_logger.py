@@ -75,11 +75,11 @@ class TwitchVODChatLogger:
         print(f"Fetching chat for VOD: {self.vod_url_or_id}")
         if save_to == 'csv':
             self.save_csv(file_name=file_name)
-            print("Downloading to CSV")
+            print("Downloading to CSV...")
         
         elif save_to == 'json':
             self.save_json(file_name=file_name)
-            print("Downloading to JSON")
+            print("Downloading to JSON...")
         
         else:
             raise ValueError("Invalid save_to value. Must be 'csv' or 'json'.")
