@@ -3,25 +3,16 @@ from dotenv import load_dotenv
 load_dotenv()
 # from twitch_client import TwitchClient 
 # from twitch_vod_chat_logger import TwitchVODChatLogger
-
-
-
-
-
 from twitch_master import Twitch
+
+
 
 def main():
     twitch = Twitch()
-    twitch.connect()
-    vod_ids = twitch.get_vod_ids("haunibunni")
-    print("Found", len(vod_ids), "VODs. First:", vod_ids[0] if vod_ids else None)
-
-    # Use TwitchVODChatLogger methods
-    if vod_ids:
-        # twitch.run_download_vod(vod_url_or_id=vod_ids[0], save_to='csv')
-        twitch.fetch_and_save_multiple_vods("haunibunni", vod_ids, save_to='csv')
-
-    twitch.disconnect()
+    twitch.run_fetch_and_save_multiple_vods(streamer_name="haunibunni", save_to="json", limit=None) # 
+    # twitch.get_user_info(login="haunibunni")
+    # twitch.get_user(login="haunibunni")
+    # print(twitch.user_id)
 
 if __name__ == "__main__":
     main()
